@@ -1,0 +1,39 @@
+---
+description: instrucciones para desarrollar sistema de gestión de pruebas QA con Next.js, Supabase y Node.js
+globs: []
+alwaysApply: true
+---
+
+# Instrucciones para desarrollo de app QA
+
+## Perfil del usuario
+- No soy programador, necesito explicaciones claras, paso a paso.
+- Usa comentarios en el código para que entienda qué hace cada parte.
+- Explica los comandos antes de usarlos en la terminal.
+
+## Stack técnico
+- Frontend: Next.js 14 + TypeScript
+- Tailwind CSS y Shadcn/ui para componentes
+- React Hook Form para formularios
+- Recharts para dashboards
+
+- Backend: Node.js + Express + TypeScript
+- Prisma ORM con PostgreSQL
+- Socket.io para tiempo real
+- Multer para archivos
+
+- Servicios: Supabase (BD, auth, storage), Vercel (deploy), Resend (emails)
+
+## Reglas de código
+- Usa estructura de carpetas moderna (app/ directory)
+- Usa funciones separadas, con nombres claros
+- Prefiere async/await
+- Incluye validaciones con Zod
+- Usa variables de entorno (.env.local)
+- Muestra ejemplos de uso al final de cada función
+
+## Buenas prácticas
+- Formularios accesibles (labels, aria)
+- Feedback visual amigable
+- Validación visible de campos
+- Muestra errores de red con mensajes claros

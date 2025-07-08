@@ -1,0 +1,106 @@
+// Modelo de datos para la app QA
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// Proyecto de pruebas
+model Proyecto {
+  id          Int       @id @default(autoincrement())
+  nombre      String
+  cliente     String
+  responsable String
+  activo      Boolean   @default(true)
+  versiones   Version[]
+}
+
+// Versiones de un proyecto
+model Version {
+  id          Int       @id @default(autoincrement())
+  proyecto    Proyecto  @relation(fields: [proyectoId], references: [id])
+  proyectoId  Int
+  nombre      String
+  fechaInicio DateTime
+  fechaFin    DateTime
+  planes      Plan[]
+}
+
+// Plan de pruebas
+model Plan {
+  id          Int       @id @default(autoincrement())
+  version     Version   @relation(fields: [versionId], references: [id])
+  versionId   Int
+  nombre      String
+  criticidad  String
+  descripcion String
+  responsable String
+  casos       CasoPrueba[]
+}
+
+// Caso de prueba
+model CasoPrueba {
+  id                Int        @id @default(autoincrement())
+  plan              Plan       @relation(fields: [planId], references: [id])
+  planId            Int
+  titulo            String
+  pasos             String
+  resultadoEsperado String
+  prioridad         String
+  estimado          Int
+  asignadoA         String
+  ejecuciones       Ejecucion[]
+}
+
+// Ejecución de un caso de prueba
+model Ejecucion {
+  id            Int        @id @default(autoincrement())
+  caso          CasoPrueba @relation(fields: [casoId], references: [id])
+  casoId        Int
+  usuarioId     String
+  fecha         DateTime
+  estado        String
+  tiempoReal    Int
+  observaciones String
+  incidentes    Incidente[]
+  evidencias    Evidencia[]
+}
+
+// Incidente asociado a una ejecución
+model Incidente {
+  id          Int       @id @default(autoincrement())
+  ejecucion   Ejecucion @relation(fields: [ejecucionId], references: [id])
+  ejecucionId Int
+  titulo      String
+  severidad   String
+  reproducir  String
+  esperado    String
+  actual      String
+  asignadoA   String
+  estado      String
+}
+
+// Evidencia asociada a una ejecución
+model Evidencia {
+  id          Int       @id @default(autoincrement())
+  ejecucion   Ejecucion @relation(fields: [ejecucionId], references: [id])
+  ejecucionId Int
+  url         String
+  descripcion String
+}
+
+// Bitácora de acciones
+model Bitacora {
+  id        Int      @id @default(autoincrement())
+  usuarioId String
+  entidad   String
+  accion    String
+  fecha     DateTime
+  ip        String
+  detalle   String
+} 
