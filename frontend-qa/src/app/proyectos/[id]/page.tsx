@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 
-// Obtener proyecto y versiones
+// Obtener proyecto
 async function getProyecto(id: string) {
   const res = await fetch(`http://localhost:3001/proyectos`);
   if (!res.ok) throw new Error("Error al obtener proyecto");
@@ -15,31 +15,30 @@ async function getProyecto(id: string) {
   return proyectos.find((p: any) => p.id === Number(id));
 }
 
-// Obtener versiones de un proyecto
-async function getVersiones(id: string) {
-  const res = await fetch(`http://localhost:3001/proyectos/${id}`);
-  if (!res.ok) throw new Error("Error al obtener versiones");
-  const proyecto = await res.json();
-  return proyecto.versiones || [];
+// Obtener planes de un proyecto
+async function getPlanes(id: string) {
+  const res = await fetch(`http://localhost:3001/proyectos/${id}/planes`);
+  if (!res.ok) throw new Error("Error al obtener planes");
+  return res.json();
 }
 
-// Crear una versión
-async function crearVersion(proyectoId: string, data: any) {
-  const res = await fetch(`http://localhost:3001/proyectos/${proyectoId}/versiones`, {
+// Crear un plan de prueba
+async function crearPlan(proyectoId: string, data: any) {
+  const res = await fetch(`http://localhost:3001/proyectos/${proyectoId}/planes`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Error al crear la versión");
+  if (!res.ok) throw new Error("Error al crear el plan");
   return res.json();
 }
 
 export default function ProyectoDetallePage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const [proyecto, setProyecto] = useState<any>(null);
-  const [versiones, setVersiones] = useState<any[]>([]);
+  const [planes, setPlanes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({ nombre: "", fechaInicio: "", fechaFin: "" });
+  const [form, setForm] = useState({ nombre: "", criticidad: "", descripcion: "", responsable: "" });
   const [formError, setFormError] = useState("");
   const [success, setSuccess] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -54,11 +53,11 @@ export default function ProyectoDetallePage({ params }: { params: { id: string }
     try {
       const p = await getProyecto(params.id);
       setProyecto(p);
-      const v = await getVersiones(params.id);
-      setVersiones(v);
+      const pl = await getPlanes(params.id);
+      setPlanes(pl);
     } catch {
       setProyecto(null);
-      setVersiones([]);
+      setPlanes([]);
     }
     setLoading(false);
   }
@@ -67,18 +66,18 @@ export default function ProyectoDetallePage({ params }: { params: { id: string }
     e.preventDefault();
     setFormError("");
     setSuccess("");
-    if (!form.nombre || !form.fechaInicio || !form.fechaFin) {
+    if (!form.nombre || !form.criticidad || !form.descripcion || !form.responsable) {
       setFormError("Todos los campos son obligatorios.");
       return;
     }
     setEnviando(true);
     try {
-      await crearVersion(params.id, form);
-      setSuccess("¡Versión creada!");
-      setForm({ nombre: "", fechaInicio: "", fechaFin: "" });
+      await crearPlan(params.id, form);
+      setSuccess("¡Plan creado!");
+      setForm({ nombre: "", criticidad: "", descripcion: "", responsable: "" });
       cargarDatos();
     } catch {
-      setFormError("Error al crear la versión.");
+      setFormError("Error al crear el plan.");
     }
     setEnviando(false);
   }
@@ -95,8 +94,9 @@ export default function ProyectoDetallePage({ params }: { params: { id: string }
         <div className="mb-2 text-gray-700">Responsable: <span className="font-semibold">{proyecto.responsable}</span></div>
         <div className="mb-2 text-gray-700">Activo: <span className="font-semibold">{proyecto.activo ? "Sí" : "No"}</span></div>
       </Card>
+      {/* Formulario para crear nuevo plan de prueba */}
       <Card className="p-6 mb-8">
-        <h2 className="text-lg font-semibold mb-4">Versiones del proyecto</h2>
+        <h2 className="text-lg font-semibold mb-4">Agregar nuevo plan de prueba</h2>
         <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end mb-6">
           <div>
             <Label htmlFor="nombre">Nombre</Label>
@@ -104,58 +104,78 @@ export default function ProyectoDetallePage({ params }: { params: { id: string }
               id="nombre"
               value={form.nombre}
               onChange={e => setForm({ ...form, nombre: e.target.value })}
-              placeholder="Nombre de la versión"
+              placeholder="Nombre del plan"
               required
             />
           </div>
           <div>
-            <Label htmlFor="fechaInicio">Fecha inicio</Label>
+            <Label htmlFor="criticidad">Criticidad</Label>
             <Input
-              id="fechaInicio"
-              type="date"
-              value={form.fechaInicio}
-              onChange={e => setForm({ ...form, fechaInicio: e.target.value })}
+              id="criticidad"
+              value={form.criticidad}
+              onChange={e => setForm({ ...form, criticidad: e.target.value })}
+              placeholder="Alta, Media, Baja..."
               required
             />
           </div>
           <div>
-            <Label htmlFor="fechaFin">Fecha fin</Label>
+            <Label htmlFor="responsable">Responsable</Label>
             <Input
-              id="fechaFin"
-              type="date"
-              value={form.fechaFin}
-              onChange={e => setForm({ ...form, fechaFin: e.target.value })}
+              id="responsable"
+              value={form.responsable}
+              onChange={e => setForm({ ...form, responsable: e.target.value })}
+              placeholder="Responsable del plan"
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="descripcion">Descripción</Label>
+            <Input
+              id="descripcion"
+              value={form.descripcion}
+              onChange={e => setForm({ ...form, descripcion: e.target.value })}
+              placeholder="Descripción breve"
               required
             />
           </div>
           <Button type="submit" disabled={enviando} className="w-full sm:w-auto">
-            {enviando ? "Creando..." : "Crear versión"}
+            {enviando ? "Creando..." : "Crear plan"}
           </Button>
         </form>
         {formError && <div className="text-red-500 text-sm mb-2">{formError}</div>}
         {success && <div className="text-green-600 text-sm mb-2">{success}</div>}
+      </Card>
+      {/* Tabla de planes de prueba */}
+      <Card className="p-6 mb-8">
+        <h2 className="text-lg font-semibold mb-4">Planes de prueba del proyecto</h2>
         <div className="overflow-x-auto">
           <table className="min-w-full border text-sm">
             <thead className="bg-gray-100">
               <tr>
                 <th className="border px-4 py-2 font-semibold">ID</th>
                 <th className="border px-4 py-2 font-semibold">Nombre</th>
-                <th className="border px-4 py-2 font-semibold">Fecha inicio</th>
-                <th className="border px-4 py-2 font-semibold">Fecha fin</th>
+                <th className="border px-4 py-2 font-semibold">Criticidad</th>
+                <th className="border px-4 py-2 font-semibold">Responsable</th>
+                <th className="border px-4 py-2 font-semibold">Descripción</th>
+                <th className="border px-4 py-2 font-semibold">Versiones</th>
               </tr>
             </thead>
             <tbody>
-              {versiones.length === 0 ? (
+              {planes.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="text-center p-4">No hay versiones registradas.</td>
+                  <td colSpan={6} className="text-center p-4">No hay planes registrados.</td>
                 </tr>
               ) : (
-                versiones.map((v: any) => (
-                  <tr key={v.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="border px-4 py-2">{v.id}</td>
-                    <td className="border px-4 py-2">{v.nombre}</td>
-                    <td className="border px-4 py-2">{v.fechaInicio?.slice(0, 10)}</td>
-                    <td className="border px-4 py-2">{v.fechaFin?.slice(0, 10)}</td>
+                planes.map((plan: any) => (
+                  <tr key={plan.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="border px-4 py-2">{plan.id}</td>
+                    <td className="border px-4 py-2">{plan.nombre}</td>
+                    <td className="border px-4 py-2">{plan.criticidad}</td>
+                    <td className="border px-4 py-2">{plan.responsable}</td>
+                    <td className="border px-4 py-2">{plan.descripcion}</td>
+                    <td className="border px-4 py-2 text-center">
+                      <a href={`/planes/${plan.id}`} className="text-blue-600 underline hover:text-blue-800">Ver versiones</a>
+                    </td>
                   </tr>
                 ))
               )}

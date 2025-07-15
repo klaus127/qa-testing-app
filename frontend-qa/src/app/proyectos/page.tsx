@@ -134,7 +134,6 @@ export default function ProyectosPage() {
                   <th className="border px-4 py-2 font-semibold">Cliente</th>
                   <th className="border px-4 py-2 font-semibold">Responsable</th>
                   <th className="border px-4 py-2 font-semibold">Activo</th>
-                  <th className="border px-4 py-2 font-semibold">Detalle</th>
                 </tr>
               </thead>
               <tbody>
@@ -150,9 +149,6 @@ export default function ProyectosPage() {
                       <td className="border px-4 py-2">{proyecto.cliente}</td>
                       <td className="border px-4 py-2">{proyecto.responsable}</td>
                       <td className="border px-4 py-2">{proyecto.activo ? "Sí" : "No"}</td>
-                      <td className="border px-4 py-2 text-center">
-                        <Link href={`/proyectos/${proyecto.id}`} className="text-blue-600 underline hover:text-blue-800">Ver detalle</Link>
-                      </td>
                     </tr>
                   ))
                 )}

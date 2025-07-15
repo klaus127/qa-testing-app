@@ -17,37 +17,37 @@ model Proyecto {
   cliente     String
   responsable String
   activo      Boolean   @default(true)
-  versiones   Version[]
+  planes      Plan[]
 }
 
 // Versiones de un proyecto
 model Version {
-  id          Int       @id @default(autoincrement())
-  proyecto    Proyecto  @relation(fields: [proyectoId], references: [id])
-  proyectoId  Int
+  id          Int           @id @default(autoincrement())
+  plan        Plan          @relation(fields: [planId], references: [id])
+  planId      Int
   nombre      String
   fechaInicio DateTime
   fechaFin    DateTime
-  planes      Plan[]
+  casos       CasoPrueba[]  @relation("VersionToCasos")
 }
 
 // Plan de pruebas
 model Plan {
   id          Int       @id @default(autoincrement())
-  version     Version   @relation(fields: [versionId], references: [id])
-  versionId   Int
+  proyecto    Proyecto  @relation(fields: [proyectoId], references: [id])
+  proyectoId  Int
   nombre      String
   criticidad  String
   descripcion String
   responsable String
-  casos       CasoPrueba[]
+  versiones   Version[]
 }
 
 // Caso de prueba
 model CasoPrueba {
   id                Int        @id @default(autoincrement())
-  plan              Plan       @relation(fields: [planId], references: [id])
-  planId            Int
+  version           Version    @relation("VersionToCasos", fields: [versionId], references: [id])
+  versionId         Int
   titulo            String
   pasos             String
   resultadoEsperado String
